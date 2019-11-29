@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Riot API Site</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <script>
+    var requestUrlList = {
+      summonerByName:"https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/KAWAII%20BAAAKA?api_key=",
+      leagueByPuuid:"https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/WDC3IO0e_VMFvHRalwX3S-ILK9DnQMHwHyCcsnV-fK0TQq8?api_key=",
+      age:46
+    };
+
+    //Set Filename
+    var codeFileName="../Stuff/riotAPIcode.txt"
+
+    //Set RequestURL
+    var requestUrl=requestUrlList['summonerByName']
+    //Variable apikey has content of codeFileName
+    var apikey=readTextFile(codeFileName)
+    //combine API Key with URL
+    var completeRequestUrl=requestUrl.concat(apikey);
+    //Get Basic Info
+    var BasicSummonerInfo = leagueRequest();
+    alert(BasicSummonerInfo["name"])
+
+    //When any Button pressed
+    function reply_click(clicked_id){
+      //Databutton
+      if (clicked_id == "dataButton") {
+        leagueRequest();
+      }
+      //testButton
+      else if (clicked_id == "testButton") {
+        testAlert(apikey);
+      }
+    };
+    function leagueRequest(){
+      $.ajax({
+          url: completeRequestUrl,
+          type: 'GET',
+          dataType: 'json',
+          success: function(data) {
+            //return json string parsed into object
+            return eval(data);
+          },
+          error: function() { alert('boo!'); },
+          beforeSend: setHeader
+      });
+    }
+    function setHeader(xhr) {
+        xhr.setRequestHeader('securityCode', 'Foo');
+        xhr.setRequestHeader('passkey', 'Bar');
+    }
+    function testAlert(message) {
+      alert(message);
+    }
+    function readTextFile(file) {
+      var rawFile = new XMLHttpRequest();
+      rawFile.open("GET", file, false);
+      rawFile.send(null);
+      return rawFile.responseText;
+    }
+    </script>
+
+
+  </head>
+  <body>
+    <button id="dataButton" onClick="reply_click(this.id)">Get Data!</button>
+    <button id="testButton" onClick="reply_click(this.id)">TestButton</button>
+
+  </body>
+</html>
