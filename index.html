@@ -9,10 +9,8 @@
     var requestUrlList = {
       summonerByName:"https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/KAWAII%20BAAAKA?api_key=",
       leagueByPuuid:"https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/WDC3IO0e_VMFvHRalwX3S-ILK9DnQMHwHyCcsnV-fK0TQq8?api_key=",
-      age:46
     };
-
-    //Set Filename
+    var BasicSummonerInfo;
     var codeFileName="../Stuff/riotAPIcode.txt"
 
     //Set RequestURL
@@ -21,29 +19,34 @@
     var apikey=readTextFile(codeFileName)
     //combine API Key with URL
     var completeRequestUrl=requestUrl.concat(apikey);
-    //Get Basic Info
-    var BasicSummonerInfo = leagueRequest();
-    alert(BasicSummonerInfo["name"])
+    //Get Basic Info about Summoner
+    leagueRequest(function(returnData){
+      alert(returnData["name"])
+      BasicSummonerInfo=returnData;
+    });
 
     //When any Button pressed
     function reply_click(clicked_id){
       //Databutton
+      alert(BasicSummonerInfo["name"])
       if (clicked_id == "dataButton") {
-        leagueRequest();
+        leagueRequest(function(returnData){
+
+        });
       }
       //testButton
       else if (clicked_id == "testButton") {
         testAlert(apikey);
       }
     };
-    function leagueRequest(){
+    function leagueRequest(returnData){
       $.ajax({
           url: completeRequestUrl,
           type: 'GET',
           dataType: 'json',
           success: function(data) {
             //return json string parsed into object
-            return eval(data);
+            returnData(eval(data));
           },
           error: function() { alert('boo!'); },
           beforeSend: setHeader
