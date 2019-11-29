@@ -11,26 +11,41 @@
       leagueByID:"https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/",
       theEnd:"?api_key=",
     };
+    var URLType;
+    var summonerNameType;
     var BasicSummonerInfo;
+    var summonerLeagueInfos;
     var codeFileName="../Stuff/riotAPIcode.txt"
     //Variable apikey has content of codeFileName
     var apikey=readTextFile(codeFileName)
-    var summonerName="KAWAII BAAAKA"
-    //Get Basic Info about Summoner
-    leagueRequest(getCompleteRequestUrl(summonerName,'summonerByName',apikey),function(returnData){
-      BasicSummonerInfo=returnData;
-      alert(returnData["name"])
-    });
-
     //When any Button pressed
     function reply_click(clicked_id){
-      //Databutton
-      if (clicked_id == "IDInfo") {
 
-        alert(document.getElementById('inputField').value);
-        leagueRequest(getCompleteRequestUrl(BasicSummonerInfo["id"],'leagueByID',apikey),function(returnData){
-          alert(returnData["0"]["tier"])
-        });
+      //Button pressed Level or Rank
+      if (clicked_id == "IDInfo" || clicked_id == "summonerInfo" ) {
+        if(clicked_id == "IDInfo" || clicked_id == "summonerInfo"){
+          URLType="summonerByName"
+          summonerNameType=document.getElementById('inputField').value
+          if(!BasicSummonerInfo || BasicSummonerInfo["name"] != document.getElementById('inputField').value){
+            leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
+              if(URLType=="summonerByName"){
+                BasicSummonerInfo=returnData;
+                alert(BasicSummonerInfo["summonerLevel"])
+              }
+            });
+          }else{
+            if(clicked_id == "IDInfo"){
+              URLType="leagueByID"
+              summonerNameType=BasicSummonerInfo["id"]
+            };
+            leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
+              if(URLType=="leagueByID"){
+                summonerLeagueInfos=returnData;
+                alert(summonerLeagueInfos["0"]["tier"])
+              }
+            });
+          }
+        };
       }
       //testButton
       else if (clicked_id == "testButton") {
