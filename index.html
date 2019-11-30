@@ -9,6 +9,7 @@
     var requestUrlList = {
       summonerByName:"https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/",
       leagueByID:"https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/",
+      matchByAccountId:"https://euw1.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/",
       theEnd:"?api_key=",
     };
     var URLType;
@@ -22,51 +23,83 @@
     function reply_click(clicked_id){
       //Button pressed Level or Rank
       if (clicked_id == "summonerInfoButton" ) {
-          URLType="summonerByName"
-          summonerNameType=document.getElementById('inputField').value
-          //Basic Summoner Infos
-          leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
-            summonerBasicInfos=returnData;
-            //Clear table
-            var mytbl = document.getElementById("summonerBasicInfosTable");
-            mytbl.getElementsByTagName("tbody")[0].innerHTML = mytbl.rows[0].innerHTML;
-            //Set Basic Summoner Infos Table
-            for (x in summonerBasicInfos) {
-              addToTable("summonerBasicInfosTable", x, summonerBasicInfos[x])
-            }
-
-        	  //summonerRankInfos
-            URLType="leagueByID"
-            summonerNameType=summonerBasicInfos["id"]
-            leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
-            summonerRankInfos=returnData;
-            //Clear table
-            var mytbl = document.getElementById("summonerRankInfos");
-            mytbl.getElementsByTagName("tbody")[0].innerHTML = mytbl.rows[0].innerHTML;
-            //Set Basic Summoner Infos Table
-            var jsonNumberForSoloQ=0;
-            //Get [number] for Ranked solo 5x5, because it is sometimes in [0] and other times in [1] bcs of FLexQ
-            for (var i = 0; i < summonerRankInfos.length; i++) {
-              if(summonerRankInfos[i]["queueType"]=="RANKED_SOLO_5x5"){
-                jsonNumberForSoloQ=i;
-              }
-            }
-            for (x in summonerRankInfos[jsonNumberForSoloQ]) {
-              addToTable("summonerRankInfos", x, summonerRankInfos[jsonNumberForSoloQ][x])
-            }
-            //Matchinfo
-
-
-
-
-
-            });
-          });
+        summonerInfoButtonClicked();
       }
-      //testButton
-      else if (clicked_id == "testButton") {
-        testAlert(apikey);
+      //aktiveGameButton
+      else if (clicked_id == "aktiveGameButton") {
+        aktiveGameButtonClicked();
       }
+    };
+    function summonerInfoButtonClicked(){
+      URLType="summonerByName"
+      //Input ones summonerName
+      summonerNameType=document.getElementById('inputField').value
+      //Basic Summoner Infos
+      leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
+        summonerBasicInfos=returnData;
+        //Clear table
+        var mytbl = document.getElementById("summonerBasicInfosTable");
+        mytbl.getElementsByTagName("tbody")[0].innerHTML = mytbl.rows[0].innerHTML;
+        //Set Basic Summoner Infos Table
+        for (x in summonerBasicInfos) {
+          addToTable("summonerBasicInfosTable", x, summonerBasicInfos[x])
+        }
+
+        //summonerRankInfos
+        URLType="leagueByID"
+        summonerNameType=summonerBasicInfos["id"]
+        leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
+          summonerRankInfos=returnData;
+          //Clear table
+          var mytbl = document.getElementById("summonerRankInfos");
+          mytbl.getElementsByTagName("tbody")[0].innerHTML = mytbl.rows[0].innerHTML;
+          //Set Basic Summoner Infos Table
+          var jsonNumberForSoloQ=0;
+          //Get [number] for Ranked solo 5x5, because it is sometimes in [0] and other times in [1] bcs of FLexQ
+          for (var i = 0; i < summonerRankInfos.length; i++) {
+            if(summonerRankInfos[i]["queueType"]=="RANKED_SOLO_5x5"){
+              jsonNumberForSoloQ=i;
+            }
+          }
+          for (x in summonerRankInfos[jsonNumberForSoloQ]) {
+            addToTable("summonerRankInfos", x, summonerRankInfos[jsonNumberForSoloQ][x])
+          }
+          alert(summonerBasicInfos["name"]);
+          return [summonerBasicInfos,summonerRankInfos];
+        });
+      });
+    }
+    function aktiveGameButtonClicked(){
+      //Test if correct Account has been set
+      if(typeof(summonerBasicInfos) !== "undefined"){
+        //An account has been already set
+        alert("An account has been already set");
+        if(summonerBasicInfos["name"]==document.getElementById('inputField').value){
+          //Correct Account has been set
+        }else{
+          //Wrong Account has been set, refresh
+          summonerInfoButtonClicked();
+        }
+      }else{
+        //No account has been set yet
+        alert("No account has been set yet");
+        summonerInfoButtonClicked();
+      }
+      //Get Match
+      URLType="matchByAccountId"
+      alert(summonerBasicInfos["name"]);
+      summonerNameType=summonerRankInfos["0"]["summonerId"]
+      leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
+        summonerRankInfos=returnData;
+        //Clear table
+        var mytbl = document.getElementById("summonerMatchInfosTeam1");
+        mytbl.getElementsByTagName("tbody")[0].innerHTML = mytbl.rows[0].innerHTML;
+        //Clear table
+        var mytbl = document.getElementById("summonerMatchInfosTeam2");
+        mytbl.getElementsByTagName("tbody")[0].innerHTML = mytbl.rows[0].innerHTML;
+        //Set Basic Summoner Infos Table
+
+      });
     };
     function leagueRequest(completeRequestUrl,returnData){
       //completeRequestUrl URL+Key
@@ -118,7 +151,7 @@
   </head>
   <body>
     <button id="summonerInfoButton" onClick="reply_click(this.id)">Get Summoner Infos</button><br>
-    <button id="testButton" onClick="reply_click(this.id)">TestButton</button><br>
+    <button id="aktiveGameButton" onClick="reply_click(this.id)">Get Active Game</button><br>
     Summoner Name: <input id="inputField" type="text" value="KAWAII BAAAKA"><br><br>
 
     <table id="summonerBasicInfosTable" border="2" style="border-collapse:collapse;" cellpadding="5">
@@ -129,11 +162,14 @@
       <th>Info</th>
       <th>Data</th>
     </table>
-    <table id="summonerMatchInfos" border="2" style="border-collapse:collapse;" cellpadding="5">
-      <th>Info</th>
-      <th>Data</th>
+    <table id="summonerMatchInfosTeam1" border="2" style="border-collapse:collapse;" cellpadding="5">
+      <th>Team1</th>
+      <th>Playername</th>
     </table>
-
+    <table id="summonerMatchInfosTeam2" border="2" style="border-collapse:collapse;" cellpadding="5">
+      <th>Team2</th>
+      <th>Playername</th>
+    </table>
 
   </body>
 </html>
