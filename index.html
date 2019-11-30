@@ -20,7 +20,6 @@
     var apikey=readTextFile(codeFileName)
     //When any Button pressed
     function reply_click(clicked_id){
-
       //Button pressed Level or Rank
       if (clicked_id == "summonerInfoButton" ) {
           URLType="summonerByName"
@@ -28,16 +27,34 @@
           //Basic Summoner Infos
           leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
             summonerBasicInfos=returnData;
-            alert(summonerBasicInfos["summonerLevel"])
+            //Clear table
+            var mytbl = document.getElementById("summonerBasicInfosTable");
+            mytbl.getElementsByTagName("tbody")[0].innerHTML = mytbl.rows[0].innerHTML;
+            //Set Basic Summoner Infos Table
+            for (x in summonerBasicInfos) {
+              addToTable("summonerBasicInfosTable", x, summonerBasicInfos[x])
+            }
 
-            //summonerRankInfos
+        	  //summonerRankInfos
             URLType="leagueByID"
             summonerNameType=summonerBasicInfos["id"]
             leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
-              summonerRankInfos=returnData;
-              alert(summonerRankInfos["0"]["tier"])
-
-              //Matchinfo
+            summonerRankInfos=returnData;
+            //Clear table
+            var mytbl = document.getElementById("summonerRankInfos");
+            mytbl.getElementsByTagName("tbody")[0].innerHTML = mytbl.rows[0].innerHTML;
+            //Set Basic Summoner Infos Table
+            var jsonNumberForSoloQ=0;
+            //Get [number] for Ranked solo 5x5, because it is sometimes in [0] and other times in [1] bcs of FLexQ
+            for (var i = 0; i < summonerRankInfos.length; i++) {
+              if(summonerRankInfos[i]["queueType"]=="RANKED_SOLO_5x5"){
+                jsonNumberForSoloQ=i;
+              }
+            }
+            for (x in summonerRankInfos[jsonNumberForSoloQ]) {
+              addToTable("summonerRankInfos", x, summonerRankInfos[jsonNumberForSoloQ][x])
+            }
+            //Matchinfo
 
 
 
@@ -87,6 +104,14 @@
       var CompleteRequestUrl=requestUrlList[requestUrlName].concat(summonerData.concat(requestUrlList["theEnd"].concat(apikey)));
       return CompleteRequestUrl;
     }
+    function addToTable(tableID, data1, data2) {
+      var table = document.getElementById(tableID);
+      var row = table.insertRow(1);
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      cell1.innerHTML = data1;
+      cell2.innerHTML = data2;
+    }
     </script>
 
 
@@ -94,11 +119,21 @@
   <body>
     <button id="summonerInfoButton" onClick="reply_click(this.id)">Get Summoner Infos</button><br>
     <button id="testButton" onClick="reply_click(this.id)">TestButton</button><br>
-    Summoner Name: <input id="inputField" type="text" value=""><br><br>
+    Summoner Name: <input id="inputField" type="text" value="KAWAII BAAAKA"><br><br>
 
-    <div id="summonerBasicInfos"></div><br>
-    <div id="summonerRankInfos"></div><br>
-    <div id="summonerMatchInfos"></div><br>
+    <table id="summonerBasicInfosTable" border="2" style="border-collapse:collapse;" cellpadding="5">
+      <th>Info</th>
+      <th>Data</th>
+    </table>
+    <table id="summonerRankInfos" border="2" style="border-collapse:collapse;" cellpadding="5">
+      <th>Info</th>
+      <th>Data</th>
+    </table>
+    <table id="summonerMatchInfos" border="2" style="border-collapse:collapse;" cellpadding="5">
+      <th>Info</th>
+      <th>Data</th>
+    </table>
+
 
   </body>
 </html>
