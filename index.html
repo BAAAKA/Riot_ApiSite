@@ -14,7 +14,7 @@
     var URLType;
     var summonerNameType;
     var BasicSummonerInfo;
-    var summonerLeagueInfos;
+    var summonerRankInfos;
     var codeFileName="../Stuff/riotAPIcode.txt"
     //Variable apikey has content of codeFileName
     var apikey=readTextFile(codeFileName)
@@ -22,30 +22,22 @@
     function reply_click(clicked_id){
 
       //Button pressed Level or Rank
-      if (clicked_id == "IDInfo" || clicked_id == "summonerInfo" ) {
-        if(clicked_id == "IDInfo" || clicked_id == "summonerInfo"){
+      if (clicked_id == "summonerInfo" ) {
           URLType="summonerByName"
           summonerNameType=document.getElementById('inputField').value
-          if(!BasicSummonerInfo || BasicSummonerInfo["name"] != document.getElementById('inputField').value){
+          //Basic Summoner Infos
+          leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
+            BasicSummonerInfo=returnData;
+            alert(BasicSummonerInfo["summonerLevel"])
+
+            //summonerRankInfos
+            URLType="leagueByID"
+            summonerNameType=BasicSummonerInfo["id"]
             leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
-              if(URLType=="summonerByName"){
-                BasicSummonerInfo=returnData;
-                alert(BasicSummonerInfo["summonerLevel"])
-              }
+              summonerRankInfos=returnData;
+              alert(summonerRankInfos["0"]["tier"])
             });
-          }else{
-            if(clicked_id == "IDInfo"){
-              URLType="leagueByID"
-              summonerNameType=BasicSummonerInfo["id"]
-            };
-            leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
-              if(URLType=="leagueByID"){
-                summonerLeagueInfos=returnData;
-                alert(summonerLeagueInfos["0"]["tier"])
-              }
-            });
-          }
-        };
+          });
       }
       //testButton
       else if (clicked_id == "testButton") {
@@ -93,8 +85,7 @@
 
   </head>
   <body>
-    <button id="summonerInfo" onClick="reply_click(this.id)">Get Summoner Level</button><br>
-    <button id="IDInfo" onClick="reply_click(this.id)">Get Summoner Rank</button><br>
+    <button id="summonerInfo" onClick="reply_click(this.id)">Get Summoner Infos</button><br>
     <button id="testButton" onClick="reply_click(this.id)">TestButton</button><br>
     Summoner Name: <input id="inputField" type="text" value=""><br>
   </body>
