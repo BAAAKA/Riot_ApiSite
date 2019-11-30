@@ -13,7 +13,7 @@
     };
     var URLType;
     var summonerNameType;
-    var BasicSummonerInfo;
+    var summonerBasicInfos;
     var summonerRankInfos;
     var codeFileName="../Stuff/riotAPIcode.txt"
     //Variable apikey has content of codeFileName
@@ -22,20 +22,27 @@
     function reply_click(clicked_id){
 
       //Button pressed Level or Rank
-      if (clicked_id == "summonerInfo" ) {
+      if (clicked_id == "summonerInfoButton" ) {
           URLType="summonerByName"
           summonerNameType=document.getElementById('inputField').value
           //Basic Summoner Infos
           leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
-            BasicSummonerInfo=returnData;
-            alert(BasicSummonerInfo["summonerLevel"])
+            summonerBasicInfos=returnData;
+            alert(summonerBasicInfos["summonerLevel"])
 
             //summonerRankInfos
             URLType="leagueByID"
-            summonerNameType=BasicSummonerInfo["id"]
+            summonerNameType=summonerBasicInfos["id"]
             leagueRequest(getCompleteRequestUrl(summonerNameType,URLType,apikey),function(returnData){
               summonerRankInfos=returnData;
               alert(summonerRankInfos["0"]["tier"])
+
+              //Matchinfo
+
+
+
+
+
             });
           });
       }
@@ -85,8 +92,13 @@
 
   </head>
   <body>
-    <button id="summonerInfo" onClick="reply_click(this.id)">Get Summoner Infos</button><br>
+    <button id="summonerInfoButton" onClick="reply_click(this.id)">Get Summoner Infos</button><br>
     <button id="testButton" onClick="reply_click(this.id)">TestButton</button><br>
-    Summoner Name: <input id="inputField" type="text" value=""><br>
+    Summoner Name: <input id="inputField" type="text" value=""><br><br>
+
+    <div id="summonerBasicInfos"></div><br>
+    <div id="summonerRankInfos"></div><br>
+    <div id="summonerMatchInfos"></div><br>
+
   </body>
 </html>
